@@ -27,9 +27,13 @@ export class TelaLoginComponent {
   login() {
     this.service.login(this.form.value).pipe(
       tap((res:any) => {
+
         this.openSnackBar(res.mensagem);
-        sessionStorage.setItem('userId', res.usuarioId);
-        this.router.navigate(['/'])
+        
+        if(res.sucessoLogin){
+          sessionStorage.setItem('userId', res.usuarioId);
+          this.router.navigate(['/'])
+        }
       })
     ).subscribe();
   }
@@ -57,12 +61,9 @@ export class TelaLoginComponent {
   hasUserSessionId() {
     var usuarioLogadoId = sessionStorage.getItem('userId');
 
-    // if (usuarioLogadoId !== null) {
-    //   this.router.navigate(['/'])
-    // } 
+    if (usuarioLogadoId !== null) {
+      this.router.navigate(['/'])
+    } 
   }
 
-  fnLinkCadastro(){
-    this.router.navigate(['/cadastro']);
-  }
 }

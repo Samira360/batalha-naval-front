@@ -1,6 +1,6 @@
 <!-- <p>home-page works!</p> -->
 <h2 id="msgAviso"></h2>
-<div class="bg-image">
+<div class="bg-image" [ngStyle]="{'background-image': 'url(' + imgTemaSelecionado + ')'}">
     <div class="container">
         <!-- DIV TOPO -->
         <div class="itens-player">
@@ -11,13 +11,13 @@
                 <div class="item-level-icon">
                     <div class="chapeu">
                         <img src="../../assets/images/img-home-page/hatPirate.png" alt="Chapéu">
-                        <p>1</p>
+                        <p class="nivel">1</p>
                     </div>
                 </div>
 
                 <div class="item-level-status">
-                    <div></div>
-                    <p>50/100</p>
+                    <div class="status-xp"></div>
+                    <p class="relacao-xp">50/200</p>
                 </div>
 
             </div>
@@ -29,7 +29,7 @@
                 </div>
                 <div class="item-coin-status">
                     <!-- <div></div> -->
-                    <p id="principalCoinsValue">{{infoUser.moedas}}</p>
+                    <p id="principalCoinsValue">{{this.userData?.moeda}}</p>
                 </div>
                 <div class="icon-coin">
                     <img src="../../assets/images/img-home-page/coin.png" alt="">
@@ -42,7 +42,7 @@
                 </div>
                 <div class="item-diamond-status">
                     <!-- <div></div> -->
-                    <p id="principalDiamondValue">{{infoUser.diamantes}}</p>
+                    <p id="principalDiamondValue">{{this.userData?.diamante}}</p>
                 </div>
                 <div class="icon-diamond">
                     <img src="../../assets/images/img-home-page/diamond.png" alt="">
@@ -57,7 +57,7 @@
 
                 <div class="user-icon">
                     <div class="user-avatar">
-                        <img src="../../assets/images/img-home-page/pirata1.png" alt="">
+                        <img [src]="this.imgAvatarSelecionado" alt="">
                     </div>
                     <div class="user-name">
                         <p>{{userData?.nome}}</p>
@@ -71,7 +71,7 @@
                     </div>
 
                     <div class="trofeu-status">
-                        <p>5</p>
+                        <p>{{ userData?.vitorias }}</p>
                     </div>
 
 
@@ -291,12 +291,13 @@
 
     </div>
 </div>
+  
+<embed #audioPlayer src="../../assets/audios/SomHomePage.mp3" loop="true" hidden="true" autostart="true">
 
-
-<div class="popups" [ngClass]="open? 'popup--visible': ''">
+<div class="popups" [class.popup--visible]="open === true"> <!-- [ngClass]="open? 'popup--visible': ''"-->
     <div class="bg-popups">
         <div class="popup-content">
-            <button id="btn-close-popups" (click)="open = false; this.fnSomHomePopup();">
+            <button id="btn-close-popups" (click)="fnCloseModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                     <path
                         d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
@@ -318,14 +319,7 @@
                 </div>
 
                 <div class="popup-conf-screm" [class.selected]="activeTabConf === 'perfil'">
-
-                    <!-- tela de conf do usuario -->
-                    <!-- <h2 id="msgAviso"></h2> -->
-
                     <div class="profile-area">
-
-
-
                         <div class="content">
                             <div class="profile-line"></div>
 
@@ -342,16 +336,12 @@
 
                                 <div class="content-infos">
                                     <div>
-                                        <span>Coleções:</span>
-                                        <p id="colecoes">0</p>
+                                        <span>Vitórias:</span>
+                                        <p id="tarefas">{{userData?.vitorias}}</p>
                                     </div>
                                     <div>
-                                        <span>Tarefas:</span>
-                                        <p id="tarefas">0</p>
-                                    </div>
-                                    <div>
-                                        <span>Tarefas conluidas:</span>
-                                        <p id="concluidas">0</p>
+                                        <span>Derrotas:</span>
+                                        <p id="colecoes">{{userData?.derrotas}}</p>
                                     </div>
                                 </div>
 
@@ -362,7 +352,7 @@
                                 <div class="data-name">
                                     <h3>Nome:</h3>
                                     <div class="name-icon" id="divName">
-                                        <p id="nomeUser">nome</p>
+                                        <p id="nomeUser">{{ this.userData?.nome }}</p>
                                         <svg (click)="fnOpenAlterSenha()" xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 16 16">
                                             <path
@@ -370,7 +360,7 @@
                                         </svg>
                                     </div>
                                     <div class="alter-name" id="divAlter">
-                                        <input type="text" id="txtName" value="testt">
+                                        <input type="text" id="txtName" value="">
                                         <svg (click)="fnFechaAlterNome()" xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 16 16">
                                             <path
@@ -386,7 +376,7 @@
 
                                 <div class="data-email">
                                     <h3>E-mail:</h3>
-                                    <p>nome&#64;gmail.com</p>
+                                    <p>{{ this.userData?.email }}</p>
                                 </div>
 
                                 <div class="data-form-pass">
@@ -470,6 +460,8 @@
                     <!-- <h1>Configurações</h1> -->
                     <div class="conf-sound-effects">
 
+                        <p>Som:</p>
+
                         <div>
                             <svg *ngIf="sliderValueSound !== 0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
                                 (click)="updateValueSound(0)">
@@ -486,14 +478,13 @@
                                 <path
                                     d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06m7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0" />
                             </svg>
-                            <!-- <input id="soundVolumeInput" type="range"  type="range" min="0" max="100" value="50" (input)="fnSoundInput('')"/> -->
-                            <!-- <input type="range" min="1" max="100" value="50" class="slider" id="myRange"> -->
                             <div class="range-slider">
                                 <input type="range" min="0" max="100" id="soundVolumeInput" [value]="sliderValueSound"
                                     (input)="updateValueSound()" />
                                 <span class="range-value" id="spanSound">{{ sliderValueSound.toString() }}</span>
                             </div>
                         </div>
+                        <p>Música:</p>
                         <div class="conf-music">
 
                             <svg *ngIf="sliderValueMusic !== 0" xmlns="http://www.w3.org/2000/svg"
@@ -536,75 +527,153 @@
 
             <div class="popup-inventory" [class.active]="activePopUp === 'inventory'">
 
-                <div class="invent-itens">
-                    <div class="popup-invent-guias">
+                <!-- <div class="invent-itens"> -->
+                <div class="popup-invent-guias">
 
-                        <!-- essas guias vai vir do banco de dados -->
-                        <div (click)="openTabInvent('todos')" [class.selected]="activeTabInvent === 'todos'">
-                            <p>Todos</p>
-                        </div>
-                        <!-- <div (click)="openTabInvent('pants')" [class.selected]="activeTabInvent === 'pants'">
+                    <!-- essas guias vai vir do banco de dados -->
+                    <div (click)="openTabInvent('todos')" [class.selected]="activeTabInvent === 'todos'">
+                        <p>Todos</p>
+                    </div>
+                    <!-- <div (click)="openTabInvent('pants')" [class.selected]="activeTabInvent === 'pants'">
                             <p>Calças</p>
                         </div> -->
 
-                        <div *ngFor="let guia of guiasInvent" (click)="openTabInvent(guia.seletor)"
-                            [class.selected]="activeTabInvent === guia.seletor">
-                            <p>{{guia.titulo}}</p>
-                        </div>
-
+                    <div *ngFor="let guia of guiasInvent" (click)="openTabInvent(guia.seletor)"
+                        [class.selected]="activeTabInvent === guia.seletor">
+                        <p>{{guia.titulo}}</p>
                     </div>
 
+                </div>
+
+                <!-- vai vir do banco -->
+                <div class="popup-invent-screm" [class.selected]="activeTabInvent === 'todos'">
                     <!-- vai vir do banco -->
-                    <div class="popup-invent-screm" [class.selected]="activeTabInvent === 'todos'">
-                        <!-- vai vir do banco -->
-                        <div class="invent-item" *ngFor="let item of itensInvent"
-                            [class.selected]="oAvatar[item.categoria] === item.titulo">
-                            <!-- <h3>100 diamantes</h3> -->
-                            <div class="item-img" (click)="fnSelectedClothe(item)">
+
+                    <ng-container *ngFor="let pacote of meusPacotes">
+
+                        <div class="invent-item" (click)="fnSelectUseItem(pacote.temaId, 0, 0)" [class.selected]="userData?.idTema === pacote.temaId">
+                            <!-- <h3>100 diamantes</h3> (click)="fnSelectedClothe(item)" [class.selected]="oAvatar[guias.seletor] === item.titulo"-->
+                            <div class="item-img" >
                                 <div>
-                                    <img [src]="item.imgUrl" alt="">
+                                    <img [src]="pacote.fundoBase64" alt="">
                                 </div>
                                 <!-- <p>Descrição</p> -->
                             </div>
+                            <div class="select-use-item" [class.selected]="userData?.idTema === pacote.temaId">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="invent-item" (click)="fnSelectUseItem(0, pacote.temaId, 0)" [class.selected]="userData?.idAvatar === pacote.temaId">
+                            <!-- <h3>100 diamantes</h3> (click)="fnSelectedClothe(item)" [class.selected]="oAvatar[guias.seletor] === item.titulo"-->
+                            <div class="item-img" >
+                                <div>
+                                    <img [src]="pacote.avatarBase64" alt="">
+                                </div>
+                                <!-- <p>Descrição</p> -->
+                            </div>
+                            <div class="select-use-item" [class.selected]="userData?.idAvatar === pacote.temaId">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="invent-item" (click)="fnSelectUseItem(0, 0, pacote.temaId)" [class.selected]="userData?.idEmbarcacao === pacote.temaId">
+                            <!-- <h3>100 diamantes</h3> (click)="fnSelectedClothe(item)" [class.selected]="oAvatar[guias.seletor] === item.titulo"-->
+                            <div class="item-img" >
+                                <div>
+                                    <img id="bc1i" [src]="pacote?.barco1Base64" alt="">
+                                    <img id="bc2i" [src]="pacote?.barco2Base64" alt="">
+                                    <img id="bc3i" [src]="pacote?.barco3Base64" alt="">
+                                    <img id="bc4i" [src]="pacote?.barco4Base64" alt="">
+                                </div>
+                                <!-- <p>Descrição</p> -->
+                            </div>
+                            <div class="select-use-item"  [class.selected]="userData?.idEmbarcacao === pacote.temaId">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                </svg>
+                            </div>
                         </div>
 
 
-                    </div>
+                    </ng-container>
 
-                    <div *ngFor="let guia of guiasInvent" class="popup-invent-screm"
-                        [class.selected]="activeTabInvent === guia.seletor">
-                        <!-- vai vir do banco -->
+                </div>
 
-                        <ng-container *ngFor="let item of itensInvent">
+                <div *ngFor="let guia of guiasInvent" class="popup-invent-screm"
+                    [class.selected]="activeTabInvent === guia.seletor">
+                    <!-- vai vir do banco -->
 
-                            <div class="invent-item" *ngIf="guia.seletor === item.categoria"
-                                [class.selected]="oAvatar[item.categoria] === item.titulo">
-                                <!-- <h3>100 diamantes</h3> -->
-                                <div class="item-img" (click)="fnSelectedClothe(item)">
-                                    <div>
-                                        <img [src]="item.imgUrl" alt="">
-                                    </div>
-                                    <!-- <p>Descrição</p> -->
+                    <ng-container *ngIf="guia.titulo === 'Avatar'">
+
+                        <div class="invent-item" (click)="fnSelectUseItem(0, pacote.temaId, 0)" *ngFor="let pacote of meusPacotes" [class.selected]="userData?.idAvatar === pacote.temaId">
+                            <!-- <h3>100 diamantes</h3> [class.selected]="oAvatar[guia.seletor] === item.titulo" *ngIf="guia.seletor === item.categoria"(click)="fnSelectedClothe(item)"-->
+                            <div class="item-img" >
+                                <div>
+                                    <img [src]="pacote.avatarBase64" alt="">
                                 </div>
+                                <!-- <p>Descrição</p> -->
                             </div>
-                        </ng-container>
+                            <div class="select-use-item selected" [class.selected]="userData?.idAvatar === pacote.temaId">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                </svg>
+                            </div> 
+                        </div>
+                    </ng-container>
 
+                    <ng-container *ngIf="guia.titulo === 'Tema'">
+                        <div class="invent-item" (click)="fnSelectUseItem(pacote.temaId, 0, 0)" *ngFor="let pacote of meusPacotes" [class.selected]="userData?.idTema === pacote.temaId">
+                            <!-- <h3>100 diamantes</h3> [class.selected]="oAvatar[guia.seletor] === item.titulo" *ngIf="guia.seletor === item.categoria"(click)="fnSelectedClothe(item)"-->
+                            <div class="item-img" >
+                                <div>
+                                    <img [src]="pacote.fundoBase64" alt="">
+                                </div>
+                                <!-- <p>Descrição</p> -->
+                            </div>
+                            <div class="select-use-item" [class.selected]="userData?.idTema === pacote.temaId">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </ng-container>
 
-                    </div>
+                    <ng-container *ngIf="guia.titulo === 'Embarcações'" >
+                        <div class="invent-item" (click)="fnSelectUseItem(0, 0, pacote.temaId)" *ngFor="let pacote of meusPacotes" [class.selected]="userData?.idEmbarcacao === pacote.temaId">
+                            <!-- <h3>100 diamantes</h3> [class.selected]="oAvatar[guia.seletor] === item.titulo" *ngIf="guia.seletor === item.categoria"(click)="fnSelectedClothe(item)"-->
+                            <div class="item-img" >
+                                <div>
+                                    <img id="bc1i" [src]="pacote?.barco1Base64" alt="">
+                                    <img id="bc2i" [src]="pacote?.barco2Base64" alt="">
+                                    <img id="bc3i" [src]="pacote?.barco3Base64" alt="">
+                                    <img id="bc4i" [src]="pacote?.barco4Base64" alt="">
+                                </div>
+                                <!-- <p>Descrição</p> -->
+                            </div>
+                            <div class="select-use-item" [class.selected]="userData?.idEmbarcacao === pacote.temaId">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </ng-container>
 
 
                 </div>
-                <div class="invent-avatar">
-                    <!-- avatar -->
-                    <!-- <app-dress-up-avatar></app-dress-up-avatar> -->
 
-                    <!-- <div> -->
-                    <!-- <div id="backdrop"> -->
-                    <div *ngFor="let guia of guiasInvent" class="clothes" [id]="guia.seletor"></div>
-                    <div id="avatar"></div>
-                    <!-- </div> -->
-                    <!-- </div> -->
-                </div>
+
+                <!-- </div> -->
             </div>
 
 
@@ -613,17 +682,84 @@
             <div class="popup-shop" [class.active]="activePopUp === 'shop'">
                 <h1>Shopping</h1>
                 <div class="popup-shop-guias">
+                    <div (click)="openTab('pacotes')" [class.selected]="activeTab === 'pacotes'">
+                        <p>Pacotes</p>
+                    </div>
                     <!-- essas guias vai vir do banco de dados -->
                     <div (click)="openTab('moedas')" [class.selected]="activeTab === 'moedas'">
-                        <p>Coins</p>
+                        <p>Moedas</p>
                     </div>
                     <div (click)="openTab('diamonds')" [class.selected]="activeTab === 'diamonds'">
-                        <p>Diamonds</p>
+                        <p>Diamantes</p>
                     </div>
 
-                    <div *ngFor="let cat of dataCategorias" (click)="openTab(cat.titulo)"
+                    <!-- <div *ngFor="let cat of dataCategorias" (click)="openTab(cat.titulo)"
                         [class.selected]="activeTab === cat.titulo">
                         <p>{{cat.titulo}}</p>
+                    </div> -->
+
+                </div>
+
+                <div class="popup-shop-screm" [class.selectedP]="activeTab === 'pacotes'"
+                    (click)="ActivePctInfo = false">
+                    <!-- Vai vir do banco -->
+
+
+                    <div class="container-pacotes">
+
+                        <ng-container *ngFor="let item of itensPacotes">
+                            <div class="shop-item" *ngIf="item.temaId !== 1" (click)="fnInfoPacote(item.temaId)">
+                                <h3>{{item.nomeTema}}</h3>
+                                <div class="item-img" >
+                                    <div>
+                                        <img id="bc1i" [src]="item?.barco1Base64" alt="">
+                                        <img id="bc2i" [src]="item?.barco2Base64" alt="">
+                                        <img id="bc3i" [src]="item?.barco3Base64" alt="">
+                                        <img id="bc4i" [src]="item?.barco4Base64" alt="">
+                                    </div>
+                                    <!-- <p>Descrição</p> -->
+                                </div>
+                                <div class="item-value">
+                                    <div *ngIf="item.tipoPagamento === 'Diamante'" class="value-type">
+                                        <img src="../../assets/images/img-home-page/diamond.png" alt="">
+                                    </div>
+                                    <div *ngIf="item.tipoPagamento === 'Moeda'" class="value-type">
+                                        <img src="../../assets/images/img-home-page/coin.png" alt="">
+                                    </div>
+                                    <div class="value-price">
+                                        <!-- <p>{{formatarValor(d.preco)}}</p> 
+                                         fnConfirmOpenModalConfirm(item.valor, 0, 'c') fnCompraPacote(item.temaId, item.valor, item.tipoPagamento)-->
+                                        <p>{{item.valor}}</p>
+                                    </div>
+                                    <div class="value-btn" (click)="fnConfirmOpenModalConfirm(item.valor, null, item.tipoPagamento, item.nomeTema, item.temaId);">
+                                        <div> 
+                                            Buy
+                                        </div>
+                                    </div>
+                                </div>
+    
+                            </div>
+                        </ng-container>
+                       
+                    </div>
+
+                    <div class="info-pacote" [class.active]="ActivePctInfo">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" (click)="ActivePctInfo = false">
+                                <path
+                                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                            </svg>
+                        </div>
+                        <div class="info-pacote-tema">
+                            <p>Tema: {{pacoteSelected?.nomeTema}}</p>
+                            <img [src]="pacoteSelected?.fundoBase64" alt="">
+                        </div>
+                        <div class="info-pacote-avatar">
+                            <p>Avatar: {{pacoteSelected?.nomeAvatar}}</p>
+                            <div>
+                                <img [src]="pacoteSelected?.avatarBase64" alt="">
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -648,7 +784,7 @@
                                 <p>{{c.preco}}</p>
                             </div>
                             <div class="value-btn">
-                                <div (click)="fnConfirmOpenModalConfirm(c.preco, c.valor, 'd')">
+                                <div (click)="fnConfirmOpenModalConfirm(c.preco, c.valor, 'Diamante')">
                                     Buy
                                 </div>
                             </div>
@@ -680,7 +816,7 @@
                                 <p>{{d.preco}}</p>
                             </div>
                             <div class="value-btn">
-                                <div (click)="fnConfirmOpenModalConfirm(d.preco, d.valor, 'c')">
+                                <div (click)="fnConfirmOpenModalConfirm(d.preco, d.valor, 'Moeda')">
                                     Buy
                                 </div>
                             </div>

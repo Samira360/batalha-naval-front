@@ -1,5 +1,9 @@
 import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
-import { Navio, Tile } from '../navio';
+import { Navio, Tile, Mina } from '../navio';
+import { finalize, pipe, tap } from 'rxjs';
+import { GiraImgs } from '../gira-imgs';
+import { BatalhaNavalService } from '../batalha-naval.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tela-pre',
@@ -9,6 +13,9 @@ import { Navio, Tile } from '../navio';
 export class TelaPreComponent {
   // canvas!: any;
   // ctx!: any;
+  @ViewChild('canvasAux', { static: false }) canvasAux!: ElementRef<HTMLCanvasElement>;
+  private girarImgs!: GiraImgs;
+
   @ViewChild('board', { static: true }) myCanvas!: ElementRef;
 
   // canvas!: HTMLCanvasElement;
@@ -27,7 +34,8 @@ export class TelaPreComponent {
   // espaço navios
   sizeSpaceShip: any = 10 * (this.sizeTiles + 1);
 
-  imagens: any = []
+  imagens: any = [];
+  imagemMina: any;
 
   update: boolean = true; // if true redraw
 
@@ -43,25 +51,30 @@ export class TelaPreComponent {
   x: any;
   y: any;
 
+  xAnterior: any;
+  yAnterior: any;
+
   tabuleiro: any[] = [];
   private webSocket!: WebSocket;
 
-  constructor(private renderer: Renderer2) {
+  somMar: any = new Audio();
+  openShadow: boolean = false;
+  usuarioLogadoId: any;
+
+  constructor(private router: Router, private service: BatalhaNavalService, private renderer: Renderer2) {
+    this.somMar.src = "../../assets/audios/somMar.mp3";
+
+
     this.webSocket = new WebSocket('ws://localhost:8080/game');
     this.webSocket.onmessage = (event) => {
       console.log(JSON.parse(event.data))
     };
-  }
 
-  ngAfterViewInit() {
-    const canvasEl = this.myCanvas.nativeElement;
-
-    this.renderer.listen(canvasEl, 'mousedown', this.myDown.bind(this));
-    this.renderer.listen(canvasEl, 'mouseup', this.myUp.bind(this));
+    this.fnSomMar();
+    this.hasUserSessionId();
   }
 
   ngOnInit(): void {
-
     this.navios.push(this.criarNavio(4, 1, 1)); // 1 navio de 4 casas
 
     this.navios.push(this.criarNavio(3, 6, 1)); // 1 navio de 3 casas
@@ -75,41 +88,165 @@ export class TelaPreComponent {
     this.navios.push(this.criarNavio(1, 1, 7)); // 1 navio de 1 casas
     this.navios.push(this.criarNavio(1, 3, 7)); // 1 navio de 1 casas
 
-
-    // ----------------------------------------------------
-
-    // this.canvas = document.getElementById("board") as HTMLCanvasElement;
-    // console.log(this.canvas)
-    // if(this.ctx )
-    //   this.ctx = this.canvas.getContext("2d");
-
-    // console.log(this.ctx);
+    this.navios.push(this.criarMina(5, 7));
+    this.navios.push(this.criarMina(7, 7));
+    this.navios.push(this.criarMina(9, 7));
 
     const canvas: HTMLCanvasElement = this.myCanvas.nativeElement;
     const ctx = canvas.getContext('2d');
 
-
     if (ctx) {
 
-      for (let i = 0; i <= 270; i += 90) {
-        var img = new Image();
-        img.src = `../../assets/img/barco${i}.png`
-        this.imagens[i] = img
-        // console.log(i)
+
+      // carregando a imagem das minas
+      let imgMina = new Image();
+      imgMina.src = '../../assets/img/mina.png';
+      this.imagemMina = imgMina
+
+      this.imagemMina.onload = () => {
+        ctx.drawImage(imgMina, 0, 0);
       }
 
-      this.imagens.forEach((img: any) => {
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0);
-          //this.fnDraw(ctx)
-        }
-      });
-
-      //ctx.clearRect(0, 0, 1021, 511);
-
-      this.fnDraw(ctx)
+      
+    let interval = setInterval(() => {
+      if (this.naviosCarregados) {
+        clearInterval(interval)
+        this.fnDraw(ctx);
+        //posso tirar o onloading
+      }
+    }, 1000);
     }
   }
+
+  async ngAfterViewInit() {
+
+    const canvasEl = this.myCanvas.nativeElement;
+    this.renderer.listen(canvasEl, 'mousedown', this.myDown.bind(this));
+    this.renderer.listen(canvasEl, 'mouseup', this.myUp.bind(this));
+
+    // this.fnGetUserPacotes();
+
+    //Para gerar uma imagem
+    this.girarImgs = new GiraImgs(this.canvasAux.nativeElement);
+
+    let interval = setInterval(() => {
+      if (this.imgNaviosBD.length === 4) {
+        this.someFunction();
+        clearInterval(interval)
+      }
+    }, 1000);
+  }
+
+  naviosCarregados = false;
+  async someFunction() {
+    await this.loadImageFromDatabase();
+
+    let tradutor: any = {
+      0: '270',
+      90: '180',
+      180: '90',
+      270: '0'
+    }
+
+    for (let j = 1; j <= 4; j++) {
+
+      this.imagens[j-1] = [];
+      for (let i = 0; i <= 270; i += 90) {
+
+        var img = new Image();
+        img.src = this.oImgNavios[j-1][i]
+        
+        this.imagens[j-1][tradutor[i]] = img;
+      }
+    }
+
+
+    this.imagens.forEach((imgs: any) => {
+
+      imgs.forEach((img: any) => {
+        img.onload = () => {
+          this.myCanvas.nativeElement.getContext('2d').drawImage(img, 0, 0);
+          //this.fnDraw(ctx)
+        }
+      })
+    
+    })
+    
+    this.naviosCarregados = true
+
+    
+
+  }
+
+
+
+  hasUserSessionId() {
+    this.usuarioLogadoId = sessionStorage.getItem('userId');
+
+    if (this.usuarioLogadoId === null || this.usuarioLogadoId === undefined) {
+      this.router.navigate(['login'])
+    } else {
+      this.getUser(this.usuarioLogadoId);
+    }
+
+  }
+
+  userData: any;
+
+  getUser(usuarioLogadoId: any) {
+    this.service.getUser(usuarioLogadoId).pipe(
+      tap(async (res: any) => {
+        this.userData = res
+        // this.sliderValueMusic = this.userData.volumeMusica * 100;
+        // this.sliderValueSound = this.userData.volumeSom * 100;
+        console.log(res)
+        await this.fnGetUserPacotes();
+        // this.fnXP();
+      })
+    ).subscribe();
+  }
+
+
+  oImgNavios: any[] = [];
+  imgNaviosBD: any = [];
+
+  fnGetUserPacotes() {
+    this.service.getUserPacotes(this.usuarioLogadoId).pipe(
+      tap((res: any) => {
+        if (res) {
+          for (let pacote of res) {
+            if (pacote.temaId === this.userData.idEmbarcacao) {
+              this.imgNaviosBD.push(pacote.barco1Base64);
+              this.imgNaviosBD.push(pacote.barco2Base64);
+              this.imgNaviosBD.push(pacote.barco3Base64);
+              this.imgNaviosBD.push(pacote.barco4Base64);
+            }
+
+          }
+
+        }
+
+      })
+    ).subscribe();
+  }
+
+  async loadImageFromDatabase() {
+    let i = 0;
+    for (let img of this.imgNaviosBD) {
+      await this.girarImgs.loadImage(img);
+      let imgsgiradas = this.girarImgs.getImgGiradas();
+      //imgsgiradas[270] = img;
+      this.oImgNavios[i] = (imgsgiradas);
+      i++;
+    }
+  }
+
+  fnSomMar() {
+    this.somMar.volume = 0;
+    this.somMar.loop = true;
+    this.somMar.play();
+  }
+
 
   myMove(e: any) {
     const rect = this.myCanvas.nativeElement.getBoundingClientRect();
@@ -142,7 +279,7 @@ export class TelaPreComponent {
               return;
             }
 
-            if (!this.isPosicaoDisponivelParaNavio(navio, tile.i, tile.j)) {
+            if (!this.isPosicaoOutroNavio(navio, tile.i, tile.j)) {
               return; //fazer bordar vermeçha ja que nao é disponivel apra o navio
             }
           }
@@ -188,6 +325,7 @@ export class TelaPreComponent {
     }
     this.dragok = false;
     this.myCanvas.nativeElement.onmousemove = null;
+
   }
 
   // Função para verificar se é possível colocar um navio na posição especificada
@@ -235,6 +373,7 @@ export class TelaPreComponent {
         return true;
       }
     }
+
     return false;
   }
 
@@ -271,7 +410,9 @@ export class TelaPreComponent {
   fnDraw(ctx: CanvasRenderingContext2D) {
 
     ctx.clearRect(0, 0, 1021, 511);
-    ctx.fillStyle = "#03a5fc";
+    // ctx.fillStyle = "#03a5fc";
+    ctx.fillStyle = "#03a5fc50";
+    ctx.strokeStyle = "#00000050"
 
     // Desenha os tiles do tabuleiro
     for (let i = 0; i < this.nTilesX; i++) {
@@ -281,34 +422,64 @@ export class TelaPreComponent {
 
         // console.log(i, j)
         ctx.fillRect(x, y, this.sizeTiles, this.sizeTiles);
+        ctx.strokeRect(x, y, this.sizeTiles, this.sizeTiles);
 
 
       }
     }
+
+
+    //desenha as minas
+
+    // this.minas.forEach(mina => {
+    //   // console.log(mina)
+    //   let x = (mina.i * 51) + 1;
+    //   let y = (mina.j * 51) + 1;
+
+    //   let img = this.imagensMina[1];
+
+    //   ctx.drawImage(img, x, y, this.sizeTiles + 1, this.sizeTiles + 1); // Desenha a imagem do tile no canvas
+
+
+    // })
 
     // Desenha os navios
     ctx.fillStyle = "blue";
 
     this.navios.forEach(navio => {
       let contador = 0
+      let posicaoOk = true
 
       navio.tiles.forEach(tile => {
+
+        if (!this.isPosicaoDisponivelParaNavio(navio, tile.i, tile.j)) {
+          posicaoOk = false
+        }
 
         let x = (tile.i * 51) + 1;
         let y = (tile.j * 51) + 1;
         // ctx.fillRect(x, y, 50, 50);
 
-        let img = this.imagens[navio.angulo]
+        if (navio.tipo === 1) { //é uma mina
 
-        if (navio.horizontal) {
-          ctx.drawImage(img, contador * img.width / navio.tiles.length, 0, img.width / navio.tiles.length, img.height, x, y, this.sizeTiles + 1, this.sizeTiles + 1); // Desenha a imagem do tile no canvas
+          ctx.drawImage(this.imagemMina, x, y, this.sizeTiles + 1, this.sizeTiles + 1); // Desenha a imagem do tile no canvas
 
+        } else {
+
+          let img = this.imagens[navio.tamanho - 1][navio.angulo.toString()]
+
+          if (navio.horizontal) {
+            ctx.drawImage(img, contador * img.width / navio.tiles.length, 0, img.width / navio.tiles.length, img.height, x, y, this.sizeTiles + 1, this.sizeTiles + 1); // Desenha a imagem do tile no canvas
+
+          }
+          else {
+            ctx.drawImage(img, 0, contador * img.height / navio.tiles.length, img.width, img.height / navio.tiles.length, x, y, this.sizeTiles + 1, this.sizeTiles + 1); // Desenha a imagem do tile no canvas
+          }
+
+          contador += 1
         }
-        else {
-          ctx.drawImage(img, 0, contador * img.height / navio.tiles.length, img.width, img.height / navio.tiles.length, x, y, this.sizeTiles + 1, this.sizeTiles + 1); // Desenha a imagem do tile no canvas
-        }
 
-        contador += 1
+
       });
 
       if (this.navioSelecionado != null) {
@@ -323,6 +494,9 @@ export class TelaPreComponent {
         }
       }
 
+      if (!posicaoOk) {
+        this.drawSelectedNavioBorder(ctx, navio, 3, 'red')
+      }
 
 
     });
@@ -348,6 +522,22 @@ export class TelaPreComponent {
 
   }
 
+
+  isPosicaoOutroNavio(navio: Navio, i: any, j: any) {
+
+    for (let outroNavio of this.navios) {
+      if (outroNavio !== navio) {
+        for (let tile of outroNavio.tiles) {
+          if (i == tile.i && j == tile.j) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+
+  }
+
   fnEstaNoTabuleiro(i: any, j: any) {
     if (i > 19 || i < 0 || j > 9 || j < 0)
       return false
@@ -361,6 +551,12 @@ export class TelaPreComponent {
       tiles.push(new Tile(i, pY)); // Adicionando tiles na mesma linha para simplificar
     }
     return new Navio(tiles, tamanho);
+  }
+
+  criarMina(pX: any, pY: any) {
+
+    let tile = [new Tile(pX, pY)]; //como o Objeto navio espera receber um arr de tiles, eu fiz isso [new tile]
+    return new Navio(tile, 1, 1);
   }
 
   // Função para verificar se dois navios são iguais
@@ -381,7 +577,7 @@ export class TelaPreComponent {
   }
 
   // Função para desenhar a borda do navio selecionado
-  drawSelectedNavioBorder(ctx: CanvasRenderingContext2D, navio: Navio, border = 1, color = "yellow") {
+  drawSelectedNavioBorder(ctx: CanvasRenderingContext2D, navio: Navio, border = 1, color = "#E6CC8A") {
     ctx.strokeStyle = color; // Define a cor da borda para amarelo
     ctx.lineWidth = border; // Define a largura da borda
 
@@ -440,13 +636,17 @@ export class TelaPreComponent {
         }
         k += passo;
 
-        if (!this.isPosicaoDisponivelParaNavio(this.navioSelecionado, tile.i, tile.j)) {
-          alert("Não é possível girar o navio aqui!");
+        if (!this.isPosicaoOutroNavio(this.navioSelecionado, tile.i, tile.j)) {
+          // alert("Não é possível girar o navio aqui!");
+          this.showNotification('Ops...', 'Não é possível girar o navio aqui!', 'error');
+
           return;
         }
 
         if (!this.fnEstaNoTabuleiro(tile.i, tile.j)) {
-          alert("Não é possível girar o navio aqui!");
+          // alert("Não é possível girar o navio aqui!");
+          this.showNotification('Ops...', 'Não é possível girar o navio aqui!', 'error');
+
           return;
         }
       }
@@ -463,9 +663,9 @@ export class TelaPreComponent {
   }
 
   fnSalvaPosicao() {
-    // Desenha os tiles do tabuleiro
     this.tabuleiro = []
     let existeNavioGaragem = false;
+    let posicaoOk = true;
 
     for (let i = 0; i < this.nTilesX; i++) {
       this.tabuleiro.push([])
@@ -481,6 +681,10 @@ export class TelaPreComponent {
 
       navio.tiles.forEach(tile => {
 
+        if (!this.isPosicaoDisponivelParaNavio(navio, tile.i, tile.j)) {
+          posicaoOk = false
+        }
+
         if (tile.i < 10) {
           existeNavioGaragem = true
         }
@@ -493,39 +697,97 @@ export class TelaPreComponent {
     var usuarioLogadoId = sessionStorage.getItem('userId');
 
     if (existeNavioGaragem) {
-      alert("Todos os navios devem estar completamente dentro do tabuleiro!")
+      // alert("Todos os navios devem estar completamente dentro do tabuleiro!");
+      this.showNotification('Ops...', 'Todos os navios devem estar completamente dentro do tabuleiro!', 'error');
+
+    }
+    else if (!posicaoOk) {
+      // alert("Os navios não podem se encostar!");
+      this.showNotification('Ops...', 'Os navios não podem se encostar!', 'error');
     }
     else {
       console.log(this.tabuleiro);
+      this.fnJogar();
+      // console.log(this.navios);
+      // console.log(this.navios);
 
-      let messageObject = { 
+      let messageObject = {
         usuarioId: usuarioLogadoId,
         tabuleiro: this.tabuleiro,
         navios: this.navios
-      }; 
+      };
 
       this.webSocket.send(JSON.stringify(messageObject))
     }
 
-   
+
+    // this.fnAlert();
     // console.log(this.navios)
   }
 
+  fnJogar() {
+    this.openShadow = true;
+  }
 
-  // fnGirar(a: boolean = false) {
+  fnAlert() {
+    (document.querySelector(".notification") as HTMLElement).style.opacity = "1";
+  }
 
-  //   console.log(a)
-  //   if (this.navioSelecionado) {
-  //     this.navioSelecionado.girar(a)
-  //   }
-  // }
+  showError() {
+    this.showNotification('Ops...', 'Há navios proximos!', 'error');
+  }
 
+  private container!: HTMLElement | null;
 
-  // document.getElementById("btnOk").addEventListener("click", () {
-  //   console.log("ok")
-  //   console.log(navios)
-  //   console.log("_____________")
-  //   // console.log(tiles) PAREI AQUIII
-  // })
+  showNotification(title: string, msg: string, type: string) {
+    // Remove any existing notification
+    console.log(this.navios);
+    this.removeNotification();
+
+    this.container = this.renderer.createElement('div');
+    this.renderer.addClass(this.container, 'f-notification');
+    this.renderer.addClass(this.container, `f-notification-${type}`);
+    this.renderer.addClass(this.container, 'f-show');
+
+    const closeButton = this.renderer.createElement('div');
+    this.renderer.addClass(closeButton, 'f-close');
+    this.renderer.listen(closeButton, 'click', () => {
+      this.removeNotification();
+    });
+
+    this.renderer.appendChild(closeButton, this.renderer.createText('×'));
+    this.renderer.appendChild(this.container, closeButton);
+
+    const titleElement = this.renderer.createElement('h3');
+    this.renderer.addClass(titleElement, 'f-notification-title');
+
+    this.renderer.appendChild(titleElement, this.renderer.createText(title));
+    this.renderer.appendChild(this.container, titleElement);
+
+    const msgElement = this.renderer.createElement('p');
+    this.renderer.addClass(msgElement, 'alert-content');
+
+    this.renderer.appendChild(msgElement, this.renderer.createText(msg));
+    this.renderer.appendChild(this.container, msgElement);
+
+    this.renderer.appendChild(document.body, this.container);
+
+    setTimeout(() => {
+      this.removeNotification();
+    }, 4000);
+  }
+
+  removeNotification() {
+    if (this.container) {
+      this.renderer.removeClass(this.container, 'f-show');
+      this.renderer.addClass(this.container, 'f-hide');
+      setTimeout(() => {
+        if (this.container && this.container.parentNode) {
+          this.renderer.removeChild(document.body, this.container);
+          this.container = null;
+        }
+      }, 500);
+    }
+  }
 
 }
