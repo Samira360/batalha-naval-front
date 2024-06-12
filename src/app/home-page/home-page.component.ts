@@ -14,6 +14,7 @@ export class HomePageComponent implements OnInit {
   dataCategorias: any[] = [];
   dataItens: any[] = [];
   userData: any;
+  userId: number = 0;
 
   open: boolean = false;
   // popupShop: boolean = false;
@@ -118,6 +119,12 @@ export class HomePageComponent implements OnInit {
 
     this.getAllCategorias();
     this.getAllItems();
+    const usuarioLogadoId = sessionStorage.getItem('userId');
+    if (usuarioLogadoId) {
+      this.userId = parseInt(usuarioLogadoId, 10);
+    } else {
+      this.fnMsg("ID do usuário não encontrado no sessionStorage.");
+    }
   }
 
   fnSomBtn() {
@@ -189,53 +196,44 @@ export class HomePageComponent implements OnInit {
   }
 
 
-  fnBuyCoin(preco: any, valor: any){
+  fnBuyCoin(preco: any, valor: any) {
     if (parseFloat(this.infoUser.diamantes) >= parseFloat(preco)) {
-      console.log("compra")
-      // faz a atualização no banco, adiciona moeda no campo moeda da tabela
-
       let result = true
-
       if (result) {
-
         let valorAtual = this.infoUser.moedas;
         this.infoUser.diamantes -= parseFloat(preco);
         (document.getElementById("principalDiamondValue") as HTMLElement).innerHTML = this.formatarValor(this.infoUser.diamantes);
-
-      
+  
         this.infoUser.moedas += parseFloat(valor);
         this.myCalculator("principalCoinsValue", valorAtual, parseFloat(valor));
-
+  
         this.fnModalConfirm();
-
         this.open = false;
+  
+        this.updateMoeda(this.infoUser.moedas); // Chama a função para atualizar moedas
+        this.updateDiamante(this.infoUser.diamantes); // Chama a função para atualizar diamantes
       }
-
     } else {
       this.fnMsg("Saldo insuficiente")
     }
   }
-
-  fnBuyDiamond(preco: any, valor: any) {
   
+  fnBuyDiamond(preco: any, valor: any) {
     if (parseFloat(this.infoUser.moedas) >= parseFloat(preco)) {
-      // faz a atualização no banco, adiciona moeda no campo moeda da tabela
-
       let result = true
-
       if (result) {
-
         let valorAtual = this.infoUser.diamantes;
         this.infoUser.moedas -= parseFloat(preco);
         (document.getElementById("principalCoinsValue") as HTMLElement).innerHTML = this.formatarValor(this.infoUser.moedas);
-
+  
         this.infoUser.diamantes += parseFloat(valor);
         this.myCalculator("principalDiamondValue", valorAtual, parseFloat(valor));
         this.fnModalConfirm();
-
         this.open = false;
+  
+        this.updateMoeda(this.infoUser.moedas); // Chama a função para atualizar moedas
+        this.updateDiamante(this.infoUser.diamantes); // Chama a função para atualizar diamantes
       }
-
     } else {
       this.fnMsg("Saldo insuficiente")
     }
@@ -303,13 +301,13 @@ export class HomePageComponent implements OnInit {
 
   updateValueSound(value = -1) {
     let volumeS = document.getElementById("soundVolumeInput") as HTMLInputElement;
-
     if (value < 0)
       this.sliderValueSound = parseInt(volumeS.value);
     else {
       this.sliderValueSound = value;
       volumeS.value = this.sliderValueSound.toString();
     }
+    this.updateVolumeSom(this.sliderValueSound); // Adicionando a chamada para atualizar o volume do som
   }
 
   updateValueMusic(value = -1) {
@@ -323,6 +321,7 @@ export class HomePageComponent implements OnInit {
     }
 
     this.fnMusicHomePage();
+    this.updateVolumeMusica(this.sliderValueMusic);
   }
 
   fnSalvaConfSounds() {
@@ -436,10 +435,97 @@ export class HomePageComponent implements OnInit {
       }, 3000);
 
     } else {
-      alert("foi")
-      // fnReqSenhaUsuario()
-      // SALVA A SENHA
+      console.log(this.userData);
+      this.fnReqSenhaUsuario(newPass.value);
     }
+  }
+
+  fnReqSenhaUsuario(newPass: String): void {
+    const formData = newPass
+    if (this.userId === null || this.userId === 0) {
+      this.fnMsg("ID do usuário é obrigatório.");
+      return;
+    }
+
+    this.service.updateUserPassword(this.userId, formData).pipe(
+      tap(
+        (response: any) => {
+          this.fnMsg(`Senha atual alterada com sucesso`); 
+        },
+        (error: any) => {
+          this.fnMsg("Erro ao requisitar a senha: " + error.message);
+        }
+      )
+    ).subscribe();
+  }
+
+  updateVolumeMusica(value: number) {
+    const formData = value;
+    this.service.updateVolumeMusica(this.userId, formData)
+      .subscribe({
+        next: (response) => this.fnMsg("Volume da música atualizado com sucesso!", "success"),
+        error: (err) => this.fnMsg("Erro ao atualizar o volume da música: " + err.message)
+      });
+  }
+  
+  // Função para atualizar o volume do som
+  updateVolumeSom(value: number) {
+    const formData = value;
+    this.service.updateVolumeSom(this.userId, formData)
+      .subscribe({
+        next: (response) => this.fnMsg("Volume do som atualizado com sucesso!", "success"),
+        error: (err) => this.fnMsg("Erro ao atualizar o volume do som: " + err.message)
+      });
+  }
+  
+  // Função para atualizar as moedas
+  updateMoeda(moedas: number) {
+    const formData = moedas;
+    this.service.updateMoeda(this.userId, formData)
+      .subscribe({
+        next: (response) => this.fnMsg("Moedas atualizadas com sucesso!", "success"),
+        error: (err) => this.fnMsg("Erro ao atualizar as moedas: " + err.message)
+      });
+  }
+  
+  // Função para atualizar os diamantes
+  updateDiamante(diamantes: number) {
+    const formData = diamantes;
+    this.service.updateDiamante(this.userId, formData)
+      .subscribe({
+        next: (response) => this.fnMsg("Diamantes atualizados com sucesso!", "success"),
+        error: (err) => this.fnMsg("Erro ao atualizar os diamantes: " + err.message)
+      });
+  }
+  
+  // Função para atualizar os troféus
+  updateTrofeu(trofeu: number) {
+    const formData = trofeu;
+    this.service.updateTrofeu(this.userId, trofeu, formData)
+      .subscribe({
+        next: (response) => this.fnMsg("Troféu atualizado com sucesso!", "success"),
+        error: (err) => this.fnMsg("Erro ao atualizar o troféu: " + err.message)
+      });
+  }
+  
+  // Função para atualizar o nome de usuário
+  updateUserName(novoNome: string) {
+    const formData = novoNome;
+    this.service.updateUserName(this.userId, formData)
+      .subscribe({
+        next: (response) => this.fnMsg("Nome de usuário atualizado com sucesso!", "success"),
+        error: (err) => this.fnMsg("Erro ao atualizar o nome de usuário: " + err.message)
+      });
+  }
+  
+  // Função para atualizar a senha
+  updateUserPassword(novaSenha: string) {
+    const formData = { senha: novaSenha };
+    this.service.updateUserPassword(this.userId, formData)
+      .subscribe({
+        next: (response) => this.fnMsg("Senha atualizada com sucesso!", "success"),
+        error: (err) => this.fnMsg("Erro ao atualizar a senha: " + err.message)
+      });
   }
 
   fnDica() {
