@@ -5,8 +5,15 @@
     font-style: normal;
 }
 
+::ng-deep * {
+    /* font: 0 !important; */
+    /* font: bold clamp(0.5em, 0.01em + 2vw, .9em) / 1.5 "clash", Arial, Helvetica, sans-serif !important; */
+
+}
+
 .bg-image {
-    background-image: url('./img/bgMadeira.png');
+    /* background-image: url('./img/bgMadeira.png'); */
+    background-color: #fff;
     background-repeat: no-repeat;
     background-size: cover;
     width: 100vw;
@@ -70,6 +77,8 @@ p {
     /* max-width: 100%; */
     margin-bottom: -25px;
 }
+
+
 
 .chapeu p {
     position: absolute;
@@ -167,7 +176,7 @@ p {
     background-color: #1BACD3;
     /* height: 25px; */
     height: 100%;
-    width: 50%;
+    width: 80%;
 }
 
 
@@ -207,10 +216,10 @@ p {
 }
 
 .user-avatar {
-    margin-right: 10px;
+    margin-right: 10px; 
     max-width: 100%;
     width: 60px;
-    height: 50px;
+    height: 60px;
     border-radius: 10px;
     background-color: #1BACD3;
     overflow: hidden;
@@ -218,7 +227,7 @@ p {
 }
 
 .user-avatar img {
-    margin-top: -10px;
+    /* margin-top: -10px; */
     width: 100%;
 }
 
@@ -689,6 +698,10 @@ p {
     align-items: center;
 }
 
+.conf-sound-effects p{
+    padding: 20px 0 0 0;
+}
+
 .conf-sound-effects > div{
     display: flex;
     align-items: center;
@@ -864,7 +877,7 @@ p {
     color: #771212;
     display: block;
     opacity: 1;
-    z-index: 10000;
+    z-index: 30000;
 }
 
 #msgAviso.success{
@@ -874,7 +887,7 @@ p {
     color: #03ddff;
     display: block;
     opacity: 1;
-    z-index: 10000;
+    z-index: 30000;
 }
 
 
@@ -934,13 +947,23 @@ p {
     margin-top: 20px;
     width: 100%;
     /* padding: 20px; */
+
 }
 
 .popup-conf .content-infos div{
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+
+    
 } 
+
+.popup-conf .content-infos div p,
+.popup-conf .content-infos div span{
+    font-size: clamp(0.7em, 0.5em + 2vw, .9em) !important;
+    font-family: 'clash', Arial, Helvetica, sans-serif !important;
+
+}
 
 .data-name, .data-email, .data-form-pass, .data-logout{
     padding: 15px;
@@ -1208,39 +1231,20 @@ p {
 
 
 /* *********************** */
+
+.popup-inventory,
 .popup-shop {
-    width: 900px;
-    max-width: 100%;
-    height: 500px;
-    background-color: #cda15e;
-    /*#BFB28F;/*#EDBD77;*/
-    padding: 10px;
-    color: rgb(219, 219, 219);
-    /* Use flex: 1 para preencher o espaço disponível */
-    /* flex: 1; */
-
-    /* Use flexbox para fazer a div pai um container flexível */
-    /* display: flex; */
-    display: none;
-    flex-direction: column;
-}
-
-.popup-inventory {
-    width: 1200px;
+    width: 920px;
     max-width: 100%;
     height: 600px;
     background-color: #cda15e;
     /*#BFB28F;/*#EDBD77;*/
     padding: 10px;
     color: rgb(219, 219, 219);
-    /* Use flex: 1 para preencher o espaço disponível */
-    /* flex: 1; */
-
-    /* Use flexbox para fazer a div pai um container flexível */
-    /* display: flex; */
     display: none;
-    /* flex-direction: column; */
+    flex-direction: column;
 }
+
 
 .popup-conf.active,
 .popup-inventory.active,
@@ -1249,60 +1253,12 @@ p {
 }
 
 
-.invent-itens {
-    flex: 2;
+/* .invent-itens {
     padding: 10px;
 
     display: flex;
     flex-direction: column;
-}
-
-.invent-avatar {
-    flex: 1;
-    background-color: #C5781D;
-    box-shadow: inset 1px 1px 5px 1px #402b11;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-
-
-/*  CSS DA PARTE DO AVATAR */
-
-#avatar {
-    background-image: url("../../assets/imagesAvatar/pirataPrincipalPelado.png");
-    background-repeat: no-repeat;
-    background-repeat: no-repeat;
-    position: absolute;
-    height: 353px;
-    width: 212px;
-    z-index: 1;
-    filter: drop-shadow(5px 1px 5px rgb(28, 27, 27));
-
-}
-
-.clothes {
-    background-repeat: no-repeat;
-    position: absolute;
-    height: 353px;
-    width: 212px;
-    z-index: 2;
-}
-
-#backdrop {
-    /* top: 2em;
-    margin: auto;
-    position: relative; */
-    background-color: rgba(246, 240, 255, 0.479);
-    border-radius: 20px;
-    height: 353px;
-    width: 212px;
-    /* text-align: center; */
-}
-
-/* ************************** */
-
+} */
 
 .popup-conf h1{
     text-align: center;
@@ -1357,17 +1313,7 @@ p {
 .popup-conf-screm{
     flex: 1;
     background-color: #C5781D;
-    /* padding: 10px; */
     display: none;
-    /* Alterado para flex para controlar a altura dos elementos */
-    /* flex-wrap: wrap; */
-    /* Permitir que os elementos quebrem para a próxima linha */
-    /* gap: 20px; */
-    /* Espaçamento entre os elementos */
-    /* overflow-y: auto; */
-    /* Adicionar uma barra de rolagem vertical se necessário */
-    /* align-content: flex-start; */
-    /* justify-content: space-evenly; */
 }
 
 .popup-invent-screm,
@@ -1379,18 +1325,17 @@ p {
     /* Alterado para flex para controlar a altura dos elementos */
     flex-wrap: wrap;
     /* Permitir que os elementos quebrem para a próxima linha */
-    gap: 20px;
+    gap: 15px;
     /* Espaçamento entre os elementos */
     overflow-y: auto;
     /* Adicionar uma barra de rolagem vertical se necessário */
     align-content: flex-start;
     /* justify-content: space-evenly; */
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
-.popup-invent-screm {
-    background-color: #ffffff89;
-
-}
 
 .popup-conf-screm.selected,
 .popup-invent-screm.selected,
@@ -1398,24 +1343,138 @@ p {
     display: flex;
 }
 
+.popup-shop-screm.selectedP{
+    display: flex;
+    flex-wrap:initial;
+    gap: 0px;
+    align-content: normal;
+    justify-content: space-between;
+    align-content: flex-start;
+}
+
+.popup-shop-screm.selectedP .shop-item{
+    cursor: pointer;
+}
+
+.popup-shop-screm.selectedP .shop-item:hover{
+    transform: scale(1.08);
+    filter: drop-shadow(5px 1px 5px rgb(28, 27, 27));
+
+}
+
+
+
+
+.popup-shop-screm::-webkit-scrollbar {
+    width: 12px;
+}
+
+.popup-shop-screm::-webkit-scrollbar-track {
+    border-radius: 8px;
+    background-color: #DBCCA4;
+    border: 1px solid #13131369;
+    box-shadow: inset 0 0 6px rgba(124, 103, 45, 0.668);
+}
+
+.popup-shop-screm::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 1px solid #17171769;
+
+    background-color: #baa363;
+}
+
+/* PACOTES */
+
+.container-pacotes{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-content: flex-start;
+}
+
+
+.info-pacote{
+    background-color: #b46436;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    /* width: 270px;    */
+    width: 0px;
+    overflow: hidden; 
+    filter: drop-shadow(5px 1px 5px rgb(28, 27, 27));
+   
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: width .3s ease, padding .3s ease;
+}
+
+.info-pacote.active{
+    width: 250px;
+    padding: 10px;
+}
+
+.info-pacote > div {
+    min-width: 220px;
+}
+
+.info-pacote svg{
+    float: right;
+    width: 25px;
+    height: 25px;
+    margin-bottom: -12px;
+    margin-right: -12px;
+    margin-top: -10px;
+    cursor: pointer;
+    fill: #fff;
+}
+
+.info-pacote p{
+    font-size: clamp(.5em, .5em + 2vw, .8em);
+    margin-bottom: 5px;
+    color: rgb(240, 240, 240);
+}
+
+.info-pacote-tema{
+    width: 100%;
+    margin-top: 5px;
+}
+.info-pacote-avatar{
+    width: 100%;
+    /* background-color: #03ddff; */
+    /* padding: 5px; */
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.info-pacote-avatar div{
+    width: 90px;
+
+}
+
+.info-pacote-tema img,
+.info-pacote-avatar img{
+    width: 100%;
+}
 
 /* itens do shop e inventario *****************************/
 
 .invent-item,
 .shop-item {
-
+    width: 200px;
     background-color: #b46436;
     border: 2px solid rgb(159, 95, 5);
     margin-bottom: 20px;
     /* Espaçamento inferior entre os elementos */
     border-radius: 8px;
-    padding: 10px;
+    padding: 8px;
     box-sizing: border-box;
     /* Garantir que o padding não afete a largura */
 }
 
 .shop-item{
-    width: 230px;
+    transition: .3s ease;
 }
 
 .invent-item {
@@ -1424,11 +1483,34 @@ p {
     box-shadow: inset 1px 1px 5px 1px rgba(28, 27, 27, 0.901);
     cursor: pointer;
     transition: .2s ease;
+    position: relative;
 }
 
-.invent-item.selected {
-    border: 2px solid red;
+.select-use-item{
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    /* background-color: #03ddff; */
+    margin-top: -25px;
+    margin-left: -10px;
+    gap: 5px;
+    display: none;   
 }
+
+.select-use-item svg{
+    width: 20px;
+    fill: #11da6f;
+}
+
+
+.invent-item.selected {
+    border: 2px solid rgb(17, 221, 85);
+}
+
+.select-use-item.selected{
+    display: flex;
+}
+
 
 .invent-item:hover {
     /* border: 2px solid rgba(159, 95, 5, 0.656); */
@@ -1445,7 +1527,6 @@ p {
 }
 
 
-.invent-item .item-img,
 .shop-item .item-img {
     /* background-color: #1BACD3; */
     display: flex;
@@ -1454,11 +1535,33 @@ p {
     font-size: clamp(0.5em, 1.5vw, .7em);
 }
 
+.shop-item .item-img div {
+    flex: 1;
+}
 
-.invent-item .item-img img,
-.shop-item .item-img img {
-    /* display: block; */
-    /* width: 60px;  */
+.shop-item .item-img div,
+.invent-item .item-img div {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.shop-item .item-img,
+.invent-item .item-img{
+
+    display: flex;
+    align-items: center;
+    /* padding: 5px; */
+    font-size: clamp(0.5em, 1.5vw, .7em);
+}
+
+.shop-item .item-img img,
+.invent-item .item-img img{
+    max-height: 100%;
+
     max-width: 100%; /* A imagem não será maior que o container */
     height: auto;   /* A altura será ajustada automaticamente para manter a proporção */
     display: block; /* Remove o espaço embaixo da imagem (comportamento padrão inline) */
@@ -1467,26 +1570,20 @@ p {
 
 }
 
-.invent-item .item-img img {
-    display: block;
-    margin: auto;
-    max-width: 100%;
-    max-height: 100%;
+#bc1i{
+    width: 35px;
 }
 
-.shop-item .item-img div {
-    max-width: 100%;
-    width: 80px;
-    height: 120px;
-    /* background-color: #d3bd1b; */
-    border-radius: 5px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 5px;
+#bc2i{
+    width: 35px;
+}
 
-    flex: 1;
+#bc3i{
+    width: 45px;
+}
+
+#bc4i{
+    width: 65px;
 }
 
 .shop-item .item-img p{
@@ -1495,11 +1592,7 @@ p {
     flex: 1;
 }
 
-.invent-item .item-img div {
-    width: 100px;
-    height: 166px;
-    overflow: hidden;
-}
+
 
 .item-value {
     display: flex;

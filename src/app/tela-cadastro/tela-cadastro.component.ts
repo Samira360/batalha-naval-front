@@ -30,23 +30,19 @@ export class TelaCadastroComponent {
   form: FormGroup = this.fb.group({
     nome: ['', Validators.required],
     email: ['', Validators.required],
-    senha: ['', Validators.required]
+    senha: ['', Validators.required],
   });
 
   constructor(private fb: FormBuilder, private service: BatalhaNavalService, private router: Router) {
     this.hasUserSessionId();
-  }
+  }  
 
   hasUserSessionId() {
     var usuarioLogadoId = sessionStorage.getItem('userId');
 
-    // if (usuarioLogadoId !== null) {
-    //   this.router.navigate(['/'])
-    // } 
-  }
-
-  fnLinkLogin(){
-    this.router.navigate(['/login'])
+    if (usuarioLogadoId !== null) {
+      this.router.navigate(['/']);
+    } 
   }
 
   fnDica() {
@@ -76,7 +72,17 @@ export class TelaCadastroComponent {
       //---------------------
       //---------------------
      this.service.postUser(this.form.value).pipe(
-       finalize(() => this.resetForms())
+      tap((res: any)=>{
+        //colocar popup de cadastrado
+        this.fnMsg("Usuario cadastrado com sucesso!", "success");
+        sessionStorage.setItem('userId', res.id);
+        this.router.navigate(['/']);
+        
+      }),
+       finalize(() => {
+        this.resetForms();
+       })
+       
       ).subscribe();
     }
   }
@@ -187,5 +193,26 @@ export class TelaCadastroComponent {
     this.form.patchValue({
       senha: e.text
     })    
+  }
+
+
+  fnMsg(msg: any, clss = "error") {
+    let msgErro = document.getElementById("msgAviso") as HTMLElement;
+
+    msgErro.innerHTML = msg
+
+    if (clss == "success") {
+      msgErro.classList.remove("error")
+      msgErro.classList.add("success")
+      setTimeout(function () {
+        msgErro.classList.remove("success")
+      }, 5000); // A mensagem de erro desaparecerá após 5 segundos (5000 milissegundos)
+    } else {
+      msgErro.classList.remove("success")
+      msgErro.classList.add("error")
+      setTimeout(function () {
+        msgErro.classList.remove("error")
+      }, 5000); // A mensagem de erro desaparecerá após 5 segundos (5000 milissegundos)
+    }
   }
 }

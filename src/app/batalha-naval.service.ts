@@ -47,6 +47,21 @@ export class BatalhaNavalService {
     return this.http.post(`${this.urlBase}/usuarios/login`, formData);
   }
 
+  comprarPacote(compradorId: number, temaId: number) {
+    return this.http.post(`${this.urlBase}/pacotes/usuarios/${compradorId}/temas/${temaId}/comprar`, null);
+  }
+
+  getUserPacotes(userId: number) {
+    return this.http.get(`${this.urlBase}/usuarios/${userId}/pacotes`);
+  }
+
+  async getUserPacotesPre(userId: number): Promise<any> {
+    return this.http.get(`${this.urlBase}/usuarios/${userId}/pacotes`);
+  }
+
+  updateUserTemaId(userId: number, formData: any){
+    return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-ids-pacotes`, formData);
+  }
   updateVolumeMusica(userId: number, formData: any) {
     return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-volumemusica`, formData);
   }
