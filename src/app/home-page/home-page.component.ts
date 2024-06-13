@@ -799,11 +799,11 @@ export class HomePageComponent implements OnInit {
   }
   
   // Função para atualizar os troféus
-  updateTrofeu(trofeu: number) {
-    const formData = trofeu;
-    this.service.updateTrofeu(this.userId, trofeu, formData)
+  updateVitoria(vitoria: number) {
+    const formData = vitoria;
+    this.service.updateVitoria(this.userId, vitoria, formData)
       .subscribe({
-        next: (response) => this.fnMsg("Troféu atualizado com sucesso!", "success"),
+        next: (response) => this.fnMsg("Vitória atualizado com sucesso!", "success"),
         error: (err) => this.fnMsg("Erro ao atualizar o troféu: " + err.message)
       });
   }

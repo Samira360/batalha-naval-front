@@ -63,11 +63,11 @@ export class BatalhaNavalService {
     return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-ids-pacotes`, formData);
   }
   updateVolumeMusica(userId: number, formData: any) {
-    return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-volumemusica`, formData);
+    return this.http.put(`${this.urlBase}/usuarios/${1}/alterar-volumemusica`, formData);
   }
 
   updateVolumeSom(userId: number, formData: any) {
-    return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-volumesom`, formData);
+    return this.http.put(`${this.urlBase}/usuarios/${1}/alterar-volumesom`, formData);
   }
   
   updateMoeda(userId: number, formData: any) {
@@ -76,14 +76,18 @@ export class BatalhaNavalService {
   updateDiamante(userId: number, formData: any) {
     return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-diamante`, formData);
   }
-  updateTrofeu(userId: number, trofeu: number, formData: any) {
-    return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-trofeu`, formData);
+  updateVitoria(userId: number, vitoria: number, formData: any) {
+    return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-vitorias`, formData);
   }
   updateUserName(userId: number, formData: any) {
     return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-nome`, formData);
   }
   updateUserPassword(userId: number, formData: any) {
     return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-senha`, formData);
+  }
+
+  updatesrcAvatar(userId: number, formData: any) {
+    return this.http.put(`${this.urlBase}/usuarios/${userId}/alterar-srcAvatar`, formData);
   }
 
 }
